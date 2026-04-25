@@ -1,0 +1,47 @@
+# Version control
+.git
+.gitignore
+
+# Replit-specific
+.replit
+.replitignore
+.cache
+.local
+.agents
+replit.md
+
+# Node / pnpm
+node_modules
+**/node_modules
+**/dist
+**/.turbo
+**/.next
+**/.vite
+**/coverage
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor
+.vscode
+.idea
+.DS_Store
+
+# OS
+Thumbs.db
+
+# Local env (Koyeb sets these via dashboard)
+.env
+.env.*
+!.env.example
+
+# Attached assets are dev-only
+attached_assets
+
+# Mockup sandbox — not deployed
+artifacts/mockup-sandbox/dist
+
+# Build artifacts (rebuilt inside the image)
+artifacts/api-server/dist
+artifacts/finalscore/dist

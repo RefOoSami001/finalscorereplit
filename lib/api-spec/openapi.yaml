@@ -1,0 +1,310 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: grades
+    description: Student grades operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+  /grades:
+    post:
+      operationId: fetchGrades
+      tags: [grades]
+      summary: Fetch student grades from Minia University portal
+      description: Authenticates the student against the Minia University portal and returns their grades, profile, statistics, and percentages by year/semester.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FetchGradesRequest"
+      responses:
+        "200":
+          description: Grades fetched successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradesResponse"
+        "400":
+          description: Bad request (invalid input)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Authentication failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "502":
+          description: Upstream portal error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "504":
+          description: Upstream portal timeout
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+    FetchGradesRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: National ID (English digits only)
+          minLength: 1
+        password:
+          type: string
+          description: Portal password
+          minLength: 1
+      required:
+        - username
+        - password
+    Course:
+      type: object
+      properties:
+        course_name:
+          type: string
+        grade:
+          type: string
+        max_score:
+          type: number
+        total_score:
+          type: number
+        percentage:
+          type: integer
+      required:
+        - course_name
+        - grade
+        - max_score
+        - total_score
+        - percentage
+    Semester:
+      type: object
+      properties:
+        first_semester:
+          type: array
+          items:
+            $ref: "#/components/schemas/Course"
+        second_semester:
+          type: array
+          items:
+            $ref: "#/components/schemas/Course"
+      required:
+        - first_semester
+        - second_semester
+    GradesByYear:
+      type: object
+      properties:
+        First:
+          $ref: "#/components/schemas/Semester"
+        Second:
+          $ref: "#/components/schemas/Semester"
+        Third:
+          $ref: "#/components/schemas/Semester"
+        Fourth:
+          $ref: "#/components/schemas/Semester"
+        Fifth:
+          $ref: "#/components/schemas/Semester"
+      required:
+        - First
+        - Second
+        - Third
+        - Fourth
+        - Fifth
+    YearPercentages:
+      type: object
+      properties:
+        first_semester:
+          type: string
+        second_semester:
+          type: string
+        total:
+          type: string
+      required:
+        - first_semester
+        - second_semester
+        - total
+    PercentagesByYear:
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/YearPercentages"
+    GradeDistribution:
+      type: object
+      properties:
+        excellent:
+          type: integer
+        very_good:
+          type: integer
+        good:
+          type: integer
+        pass:
+          type: integer
+        fail:
+          type: integer
+      required:
+        - excellent
+        - very_good
+        - good
+        - pass
+        - fail
+    YearStat:
+      type: object
+      properties:
+        percentage:
+          type: number
+        courses_count:
+          type: integer
+        average:
+          type: number
+      required:
+        - percentage
+        - courses_count
+        - average
+    SemesterAverage:
+      type: object
+      properties:
+        percentage:
+          type: number
+        courses_count:
+          type: integer
+      required:
+        - percentage
+        - courses_count
+    SubjectHighlight:
+      type: object
+      properties:
+        name:
+          type: string
+        percentage:
+          type: number
+        grade:
+          type: string
+      required:
+        - name
+        - percentage
+        - grade
+    Statistics:
+      type: object
+      properties:
+        total_courses:
+          type: integer
+        total_years:
+          type: integer
+        overall_percentage:
+          type: number
+        gpa:
+          type: number
+        grade_distribution:
+          $ref: "#/components/schemas/GradeDistribution"
+        year_statistics:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/YearStat"
+        average_by_semester:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/SemesterAverage"
+        best_subject:
+          oneOf:
+            - $ref: "#/components/schemas/SubjectHighlight"
+            - type: "null"
+        worst_subject:
+          oneOf:
+            - $ref: "#/components/schemas/SubjectHighlight"
+            - type: "null"
+      required:
+        - total_courses
+        - total_years
+        - overall_percentage
+        - gpa
+        - grade_distribution
+        - year_statistics
+        - average_by_semester
+    GradesResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        full_name:
+          type: string
+          description: Full student name (all parts) as returned by the portal
+        student_code:
+          type: string
+        faculty:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Faculty / college name in Arabic (if available)
+        department:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Department / specialization in Arabic (if available)
+        program:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Academic program / level (if available)
+        img_data_url:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Optimized student photo as a data URL (or null if unavailable)
+        grades_by_year:
+          $ref: "#/components/schemas/GradesByYear"
+        percentages_by_year:
+          $ref: "#/components/schemas/PercentagesByYear"
+        statistics:
+          $ref: "#/components/schemas/Statistics"
+        congrats_message:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Special congratulations message for specific users
+      required:
+        - name
+        - full_name
+        - student_code
+        - grades_by_year
+        - percentages_by_year
+        - statistics
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
