@@ -1,0 +1,233 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+@import "tailwindcss";
+@import "tw-animate-css";
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-secondary-border: var(--secondary-border);
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-destructive-border: var(--destructive-border);
+
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+
+  --font-sans: var(--app-font-sans);
+  --font-serif: var(--app-font-serif);
+  --font-mono: var(--app-font-mono);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --button-outline: rgba(0,0,0, .08);
+  --badge-outline: rgba(0,0,0, .04);
+  --opaque-button-border-intensity: -8;
+  --elevate-1: rgba(0,0,0, .03);
+  --elevate-2: rgba(0,0,0, .06);
+
+  /* Premium light palette: soft pearl background, indigo brand, amber accent */
+  --background: 220 40% 98%;
+  --foreground: 224 47% 12%;
+  --border: 220 22% 90%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 224 47% 12%;
+  --card-border: 220 22% 90%;
+
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 224 47% 12%;
+  --sidebar-border: 220 22% 90%;
+  --sidebar-primary: 244 80% 58%;
+  --sidebar-primary-foreground: 210 40% 98%;
+  --sidebar-accent: 220 30% 95%;
+  --sidebar-accent-foreground: 224 47% 12%;
+  --sidebar-ring: 244 80% 58%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 224 47% 12%;
+  --popover-border: 220 22% 90%;
+
+  --primary: 244 80% 58%;
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 220 30% 95%;
+  --secondary-foreground: 224 47% 12%;
+
+  --muted: 220 30% 95%;
+  --muted-foreground: 220 12% 42%;
+
+  --accent: 38 92% 52%;
+  --accent-foreground: 224 47% 12%;
+
+  --destructive: 0 72% 50%;
+  --destructive-foreground: 0 0% 100%;
+
+  --input: 220 22% 92%;
+  --ring: 244 80% 58%;
+
+  --chart-1: 244 80% 58%;
+  --chart-2: 38 92% 52%;
+  --chart-3: 158 64% 42%;
+  --chart-4: 199 89% 50%;
+  --chart-5: 340 82% 55%;
+
+  --app-font-sans: 'Cairo', sans-serif;
+  --app-font-serif: Georgia, serif;
+  --app-font-mono: 'JetBrains Mono', Menlo, monospace;
+  --radius: 1rem;
+
+  --sidebar-primary-border: hsl(var(--sidebar-primary));
+  --sidebar-accent-border: hsl(var(--sidebar-accent));
+  --primary-border: hsl(var(--primary));
+  --secondary-border: hsl(var(--secondary));
+  --muted-border: hsl(var(--muted));
+  --accent-border: hsl(var(--accent));
+  --destructive-border: hsl(var(--destructive));
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html, body {
+    @apply font-sans antialiased text-foreground;
+    background: hsl(var(--background));
+  }
+  body {
+    background-image:
+      radial-gradient(at 8% -10%, hsl(244 90% 70% / 0.18) 0px, transparent 45%),
+      radial-gradient(at 95% 5%, hsl(38 92% 60% / 0.16) 0px, transparent 45%),
+      radial-gradient(at 50% 110%, hsl(199 89% 60% / 0.10) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+/* Card surface used throughout */
+.surface {
+  background: hsl(0 0% 100%);
+  border: 1px solid hsl(220 22% 92%);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100%) inset,
+    0 1px 2px 0 hsl(220 30% 30% / 0.04),
+    0 8px 30px -12px hsl(220 30% 30% / 0.10);
+}
+
+/* Subtle gradient surface variant */
+.surface-soft {
+  background: linear-gradient(180deg, #ffffff 0%, hsl(220 40% 99%) 100%);
+  border: 1px solid hsl(220 22% 92%);
+  box-shadow:
+    0 1px 0 0 hsl(0 0% 100%) inset,
+    0 8px 24px -12px hsl(220 30% 30% / 0.08);
+}
+
+/* Glow border for hero/accent surfaces */
+.glow-border {
+  position: relative;
+}
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, hsl(244 80% 58% / 0.6), hsl(38 92% 52% / 0.4) 60%, transparent 90%);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  pointer-events: none;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Animated rising number gradient text */
+.text-gradient-primary {
+  background: linear-gradient(135deg, hsl(244 80% 58%), hsl(280 80% 60%) 50%, hsl(38 92% 52%));
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+/* Soft floating animation for the brand mark */
+@keyframes floaty {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.animate-floaty { animation: floaty 4s ease-in-out infinite; }
+
+/* Confetti pulse for the share card emblem */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 hsl(244 80% 58% / 0.45); }
+  100% { box-shadow: 0 0 0 24px hsl(244 80% 58% / 0); }
+}
+.pulse-ring { animation: pulse-ring 2.2s ease-out infinite; }
+
+/* Hide arrows on number-ish inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: hsl(220 20% 86%);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: hsl(220 20% 75%); }

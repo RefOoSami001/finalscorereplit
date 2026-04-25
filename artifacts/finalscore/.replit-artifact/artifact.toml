@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "FinalScore — نتائج طلاب المنيا"
+version = "1.0.0"
+id = "artifacts/finalscore"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18891
+
+[services.development]
+run = "pnpm --filter @workspace/finalscore run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/finalscore", "run", "build" ]
+publicDir = "artifacts/finalscore/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18891"
+BASE_PATH = "/"
