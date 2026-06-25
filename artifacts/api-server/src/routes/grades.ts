@@ -283,11 +283,18 @@ router.post("/grades", async (req, res) => {
   }
 
   const u = userArr[0] ?? {};
+
+  /** Prefer the Arabic segment in a pipe-separated multilingual string */
+  const arabicFirst = (v: string): string => {
+    const parts = v.split("|").map(p => p.trim()).filter(Boolean);
+    return (parts.find(p => /[\u0600-\u06FF]/.test(p)) ?? parts[0] ?? "").trim();
+  };
+
   const pickStr = (...keys: string[]): string | null => {
     for (const k of keys) {
       const v = u[k];
       if (typeof v === "string") {
-        const cleaned = v.split("|")[0]?.trim() ?? "";
+        const cleaned = arabicFirst(v);
         if (cleaned) return cleaned;
       }
     }
@@ -305,7 +312,7 @@ router.post("/grades", async (req, res) => {
     for (const k of keys) {
       const v = obj[k];
       if (typeof v === "string") {
-        const cleaned = v.split("|")[0]?.trim() ?? "";
+        const cleaned = arabicFirst(v);
         if (cleaned) return cleaned;
       }
     }
@@ -484,8 +491,11 @@ router.post("/grades", async (req, res) => {
   for (const yk of orderedYearKeys) {
     if (scopeNameByYear[yk]) {
       const raw = scopeNameByYear[yk] ?? "";
-      // Strip " - الفترة الدراسية ..." suffix, keep "رابعة - كلية تمريض" style
-      currentStudyYear = raw.replace(/\s*-\s*الفترة الدراسية.*$/u, "").trim() || raw;
+      // Strip semester suffix
+      let cleaned = raw.replace(/\s*-\s*الفترة الدراسية.*$/u, "").trim();
+      // Keep only the Arabic segment from multilingual pipe-separated strings
+      cleaned = arabicFirst(cleaned);
+      currentStudyYear = cleaned || null;
       break;
     }
   }

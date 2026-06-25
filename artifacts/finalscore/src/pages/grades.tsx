@@ -509,22 +509,38 @@ export default function GradesDashboard() {
               </motion.div>
 
               <div className="min-w-0 flex-1">
-                <p className="text-xs text-muted-foreground mb-1 font-medium">
+                <p className="text-xs text-muted-foreground mb-0.5 font-medium">
                   مرحباً،
                 </p>
                 <h2 className="text-2xl sm:text-3xl font-extrabold text-foreground leading-tight">
                   {grades.full_name || grades.name}
                 </h2>
 
+                {/* Study year subtitle */}
+                {grades.current_study_year && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15 }}
+                    className="mt-1.5 flex items-center gap-1.5 text-sm text-violet-700 font-semibold"
+                  >
+                    <GraduationCap className="w-4 h-4 shrink-0" />
+                    <span>{grades.current_study_year}</span>
+                  </motion.div>
+                )}
+
+                {/* Info row */}
                 <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {/* Student ID */}
                   <span
-                    className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-mono tabular font-semibold"
+                    className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary font-mono font-semibold"
                     dir="ltr"
                   >
-                    <span className="text-primary/60">ID</span>
+                    <span className="text-primary/50 text-[10px]">ID</span>
                     {grades.student_code}
                   </span>
 
+                  {/* Faculty */}
                   {grades.faculty && (
                     <motion.span
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -532,11 +548,12 @@ export default function GradesDashboard() {
                       transition={{ delay: 0.2 }}
                       className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-amber-100 border border-amber-200 text-amber-800 font-semibold"
                     >
-                      <Building2 className="w-3.5 h-3.5" />
+                      <Building2 className="w-3.5 h-3.5 shrink-0" />
                       {grades.faculty}
                     </motion.span>
                   )}
 
+                  {/* Department */}
                   {grades.department && (
                     <motion.span
                       initial={{ opacity: 0, scale: 0.9 }}
@@ -544,44 +561,21 @@ export default function GradesDashboard() {
                       transition={{ delay: 0.25 }}
                       className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 font-semibold"
                     >
-                      <Layers className="w-3.5 h-3.5" />
+                      <Layers className="w-3.5 h-3.5 shrink-0" />
                       {grades.department}
                     </motion.span>
                   )}
 
-                  {grades.program && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3 }}
-                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-sky-100 border border-sky-200 text-sky-800 font-semibold"
-                    >
-                      <BookMarked className="w-3.5 h-3.5" />
-                      {grades.program}
-                    </motion.span>
-                  )}
-
-                  {grades.current_study_year && (
-                    <motion.span
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.35 }}
-                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-violet-100 border border-violet-200 text-violet-800 font-semibold"
-                    >
-                      <GraduationCap className="w-3.5 h-3.5" />
-                      {grades.current_study_year}
-                    </motion.span>
-                  )}
-
+                  {/* Email */}
                   {grades.email && (
                     <motion.span
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4 }}
-                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-rose-100 border border-rose-200 text-rose-800 font-semibold"
+                      transition={{ delay: 0.3 }}
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-rose-100 border border-rose-200 text-rose-700 font-medium"
                       dir="ltr"
                     >
-                      <Mail className="w-3.5 h-3.5" />
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
                       {grades.email}
                     </motion.span>
                   )}
