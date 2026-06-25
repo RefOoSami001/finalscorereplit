@@ -5,7 +5,7 @@
   "engines": {
     "node": ">=22 <25"
   },
-  "packageManager": "pnpm@10.4.0",
+  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "build:prod": "pnpm run typecheck:libs && set BASE_PATH=/ && pnpm --filter @workspace/finalscore run build && pnpm --filter @workspace/api-server run build",
