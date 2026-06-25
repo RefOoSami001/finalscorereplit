@@ -47,6 +47,8 @@ import {
   Loader2,
   Copy,
   CheckCheck,
+  Mail,
+  CalendarDays,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -556,6 +558,31 @@ export default function GradesDashboard() {
                     >
                       <BookMarked className="w-3.5 h-3.5" />
                       {grades.program}
+                    </motion.span>
+                  )}
+
+                  {grades.current_study_year && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.35 }}
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-violet-100 border border-violet-200 text-violet-800 font-semibold"
+                    >
+                      <GraduationCap className="w-3.5 h-3.5" />
+                      {grades.current_study_year}
+                    </motion.span>
+                  )}
+
+                  {grades.email && (
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 }}
+                      className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-rose-100 border border-rose-200 text-rose-800 font-semibold"
+                      dir="ltr"
+                    >
+                      <Mail className="w-3.5 h-3.5" />
+                      {grades.email}
                     </motion.span>
                   )}
                 </div>

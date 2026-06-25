@@ -27,4 +27,20 @@ export interface GradesResponse {
   statistics: Statistics;
   /** Special congratulations message for specific users */
   congrats_message?: string | null;
+  /** Student email address */
+  email?: string | null;
+  /** Student mobile phone number */
+  phone?: string | null;
+  /** Student home address */
+  address?: string | null;
+  /** Father mobile phone number */
+  father_phone?: string | null;
+  /** Student nationality */
+  nationality?: string | null;
+  /** Student birth date */
+  birth_date?: string | null;
+  /** Student gender */
+  gender?: string | null;
+  /** Current academic year label (e.g. رابعة كلية تمريض) */
+  current_study_year?: string | null;
 }

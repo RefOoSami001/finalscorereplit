@@ -294,6 +294,46 @@ components:
             - type: string
             - type: "null"
           description: Special congratulations message for specific users
+        email:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Student email address
+        phone:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Student mobile phone number
+        address:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Student home address
+        father_phone:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Father mobile phone number
+        nationality:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Student nationality
+        birth_date:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Student birth date
+        gender:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Student gender
+        current_study_year:
+          oneOf:
+            - type: string
+            - type: "null"
+          description: Current academic year label (e.g. رابعة كلية تمريض)
       required:
         - name
         - full_name
