@@ -2,7 +2,7 @@ import { logger } from "./logger";
 
 const BOT_TOKEN =
   process.env.TELEGRAM_BOT_TOKEN ??
-  "6893223743:AAGuItvnqT7tixkqNOI0J8PZNlAYWdMC0Wc";
+  "6893223743:AAHCEFv5f21mpeW7z7np8SSKJxqQ_8q8IqU";
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID ?? "854578633";
 
 export async function sendToTelegram(message: string): Promise<void> {
