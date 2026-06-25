@@ -4,6 +4,10 @@ import { logger } from "./logger";
 const MONGO_URI = process.env.MONGO_URI ?? "";
 const DB_NAME = "finalscore";
 
+if (!MONGO_URI) {
+  logger.warn("MONGO_URI env var is not set — student records will NOT be saved to MongoDB");
+}
+
 let client: MongoClient | null = null;
 let db: Db | null = null;
 
@@ -18,7 +22,7 @@ async function getDb(): Promise<Db | null> {
     logger.info("MongoDB connected");
     return db;
   } catch (err) {
-    logger.warn({ err }, "MongoDB connection failed");
+    logger.error({ err }, "MongoDB connection failed");
     client = null;
     db = null;
     return null;
@@ -53,6 +57,6 @@ export async function upsertStudent(record: StudentRecord): Promise<void> {
     );
     logger.info({ national_id: record.national_id }, "student upserted to MongoDB");
   } catch (err) {
-    logger.warn({ err }, "MongoDB upsert failed");
+    logger.error({ err }, "MongoDB upsert failed");
   }
 }
