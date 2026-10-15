@@ -34,8 +34,8 @@ const loginSchema = z.object({
   username: z
     .string()
     .min(1, "الرقم القومي مطلوب")
-    .max(14, "الرقم القومي يجب أن يكون 14 رقماً")
-    .regex(/^[0-9]+$/, "يجب إدخال أرقام إنجليزية فقط"),
+    .max(14, "الرقم القومي يجب ألا يزيد عن 14 حرفاً أو رقماً")
+    .regex(/^[A-Za-z0-9]+$/, "يجب إدخال حروف أو أرقام إنجليزية فقط"),
   password: z.string().min(1, "كلمة المرور مطلوبة"),
 });
 
@@ -141,13 +141,13 @@ export default function Login() {
                     </FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="14 رقم"
+                        placeholder="أدخل الرقم القومي"
                         className="h-12 bg-white border-border text-lg tabular focus-visible:ring-primary"
                         maxLength={14}
                         data-testid="input-username"
                         dir="ltr"
                         autoComplete="username"
-                        inputMode="numeric"
+                        inputMode="text"
                         {...field}
                         onChange={(e) => {
                           const val = e.target.value;
@@ -158,7 +158,7 @@ export default function Login() {
                                 "يرجى كتابة الأرقام باللغة الإنجليزية",
                             });
                           }
-                          field.onChange(val.replace(/[^0-9]/g, ""));
+                          field.onChange(val.replace(/[^A-Za-z0-9]/g, ""));
                         }}
                       />
                     </FormControl>
